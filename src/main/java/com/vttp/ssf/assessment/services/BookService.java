@@ -81,8 +81,9 @@ public class BookService {
             if (resultObject.isPresent()) {
                 JsonObject result = resultObject.get();
                 book = Book.createFromJsonObject(result);
+                logger.log(Level.INFO, "book of workID: " + book.getKey() + " created");
             }
-            // repository.storeBookInCache(book);
+            repository.storeBookInCache(book);
             return book;
         }
     }

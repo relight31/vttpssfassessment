@@ -22,7 +22,7 @@ public class BookController {
 
     @GetMapping(path = "/{works_id}")
     public String getBook(@PathVariable(name = "works_id") String worksID, Model model) {
-        logger.log(Level.INFO, "calling getBook method");
+        logger.log(Level.INFO, "calling getBook method on worksID: " + worksID);
         Book book = service.getWork(worksID);
         model.addAttribute("book", book);
         return "book";
