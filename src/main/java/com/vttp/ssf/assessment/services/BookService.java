@@ -40,7 +40,7 @@ public class BookService {
         // build URI and send to invokeMethod
         String searchBooksString = UriComponentsBuilder
                 .fromUriString(SEARCH_BASE_URL)
-                .queryParam("title", searchTerm)
+                .queryParam("title", cleanSearchQuery(searchTerm))
                 .toUriString();
         logger.log(Level.INFO, "searchBooksString constructed as " + searchBooksString);
         Optional<JsonObject> resultObject = invokeMethod(searchBooksString);
@@ -89,7 +89,14 @@ public class BookService {
     }
 
     public static String cleanSearchQuery(String query) {
-        return null;
+        if (query != null) {
+            query = query.replaceAll("\\s+", " ");
+            query = query.replaceAll("[^a-zA-Z0-9_ ]", "");
+            query = query.trim();
+            query = query.toLowerCase();
+            query = query.replaceAll("\\s+", "+");
+        }
+        return query;
     }
 
     public static Optional<JsonObject> invokeMethod(String url) {
