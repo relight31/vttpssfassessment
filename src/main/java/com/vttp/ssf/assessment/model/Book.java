@@ -58,7 +58,6 @@ public class Book {
         this.cached = cached;
     }
 
-
     public static Book createFromJsonObject(JsonObject object) {
         Book book = new Book();
         book.setKey(object.getString("key").substring(5));
@@ -80,6 +79,8 @@ public class Book {
                     book.excerpts.add(excerpt);
                 }
             }
+        } else {
+            book.excerpts.add("No excerpts found.");
         }
         return book;
     }
