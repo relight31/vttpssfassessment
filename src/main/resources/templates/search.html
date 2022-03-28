@@ -9,10 +9,10 @@
 <body>
     <table>
         <tr>
-            <td>Search results for <span>Search term</span></td>
+            <td>Search results for <span th:text="${searchTerm}"></span></td>
         </tr>
-        <tr>
-            <td>search result link</td>
+        <tr th:each="book:${books}">
+            <td><a th:href="@{/book{key}(key=${book.key})}"><span th:text="${book.title}"></span></a></td>
         </tr>
         <tr>
             <td>More results not shown</td>

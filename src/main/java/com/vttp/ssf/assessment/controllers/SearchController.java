@@ -25,6 +25,7 @@ public class SearchController {
     @GetMapping(path = "/search")
     public String search(Model model, @RequestParam(name = "booktitle") String searchTerm) {
         List<Book> books = service.search(searchTerm);
+        model.addAttribute("searchTerm", searchTerm);
         model.addAttribute("books", books);
         return "search";
     }

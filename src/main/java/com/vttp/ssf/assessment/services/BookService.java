@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.vttp.ssf.assessment.model.Book;
@@ -26,6 +27,7 @@ import jakarta.json.JsonValue;
 @Service
 public class BookService {
     private static final String SEARCH_BASE_URL = "http://openlibrary.org/search.json";
+    private static final String WORKS_BASE_URL = "https://openlibrary.org/works/%s.json";
 
     Logger logger = Logger.getLogger(BookService.class.getName());
 
@@ -33,21 +35,43 @@ public class BookService {
         // build URI and send to invokeMethod
         String searchBooksString = UriComponentsBuilder
                 .fromUriString(SEARCH_BASE_URL)
-                .queryParam("q", searchTerm)
+                .queryParam("title", searchTerm)
                 .toUriString();
+        logger.log(Level.INFO, "searchBooksString constructed as " + searchBooksString);
         Optional<JsonObject> resultObject = invokeMethod(searchBooksString);
+        logger.log(Level.INFO, "search results retrieved as JsonObject");
         List<Book> books = new LinkedList<>();
         if (resultObject.isPresent()) {
+            logger.log(Level.INFO, "Optional unpacked");
             JsonArray booksArray = resultObject.get().getJsonArray("docs");
             for (JsonValue entry : booksArray) {
-                Book book = new Book();
-                book.setKey(entry.asJsonObject().getString("key"));
-                book.setTitle(entry.asJsonObject().getString("title"));
-                books.add(book);
+                if (books.size() >= 20) {
+                    break;
+                } else {
+                    Book book = Book.createFromJsonObject(entry.asJsonObject());
+                    books.add(book);
+                }
             }
         }
+        logger.log(Level.INFO, "Retrieved " + books.size() + " books");
         // max 20 books returned
         return books;
+    }
+
+    public Book getWork(String worksID) {
+        // build URI and send to invokeMethod
+        String searchWorksidString = UriComponentsBuilder
+                .fromUriString(WORKS_BASE_URL.formatted(worksID))
+                .toUriString();
+        logger.log(Level.INFO, "searchWorksidString constructed");
+        Optional<JsonObject> resultObject = invokeMethod(searchWorksidString);
+        logger.log(Level.INFO, "work retrieved as JsonObject");
+        Book book = new Book();
+        if (resultObject.isPresent()) {
+            JsonObject result = resultObject.get();
+            book = Book.createFromJsonObject(result);
+        }
+        return book;
     }
 
     public static String cleanSearchQuery(String query) {
