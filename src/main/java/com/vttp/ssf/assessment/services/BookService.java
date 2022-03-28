@@ -10,7 +10,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.vttp.ssf.assessment.model.Book;
+import com.vttp.ssf.assessment.repository.BookRepository;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +32,9 @@ public class BookService {
     private static final String WORKS_BASE_URL = "https://openlibrary.org/works/%s.json";
 
     Logger logger = Logger.getLogger(BookService.class.getName());
+
+    @Autowired
+    BookRepository repository;
 
     public List<Book> search(String searchTerm) {
         // build URI and send to invokeMethod
@@ -59,19 +64,27 @@ public class BookService {
     }
 
     public Book getWork(String worksID) {
-        // build URI and send to invokeMethod
-        String searchWorksidString = UriComponentsBuilder
-                .fromUriString(WORKS_BASE_URL.formatted(worksID))
-                .toUriString();
-        logger.log(Level.INFO, "searchWorksidString constructed");
-        Optional<JsonObject> resultObject = invokeMethod(searchWorksidString);
-        logger.log(Level.INFO, "work retrieved as JsonObject");
-        Book book = new Book();
-        if (resultObject.isPresent()) {
-            JsonObject result = resultObject.get();
-            book = Book.createFromJsonObject(result);
+        // check cache first
+        logger.log(Level.INFO, String.valueOf(repository.checkCache(worksID)));
+        if (repository.checkCache(worksID) == true) {
+            logger.log(Level.INFO, worksID + " available in cache");
+            return repository.getBookFromCache(worksID);
+        } else {
+            // build URI and send to invokeMethod
+            String searchWorksidString = UriComponentsBuilder
+                    .fromUriString(WORKS_BASE_URL.formatted(worksID))
+                    .toUriString();
+            logger.log(Level.INFO, "searchWorksidString constructed");
+            Optional<JsonObject> resultObject = invokeMethod(searchWorksidString);
+            logger.log(Level.INFO, "work retrieved as JsonObject");
+            Book book = new Book();
+            if (resultObject.isPresent()) {
+                JsonObject result = resultObject.get();
+                book = Book.createFromJsonObject(result);
+            }
+            // repository.storeBookInCache(book);
+            return book;
         }
-        return book;
     }
 
     public static String cleanSearchQuery(String query) {

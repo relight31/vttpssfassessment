@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping(path = "/books")
+@RequestMapping(path = "/book")
 public class BookController {
     Logger logger = Logger.getLogger(BookController.class.getName());
     @Autowired

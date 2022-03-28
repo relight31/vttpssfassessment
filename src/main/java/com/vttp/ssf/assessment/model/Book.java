@@ -60,7 +60,7 @@ public class Book {
 
     public static Book createFromJsonObject(JsonObject object) {
         Book book = new Book();
-        book.setKey(object.getString("key").substring(5));
+        book.setKey(object.getString("key").substring(6));
         book.setTitle(object.getString("title"));
         if (object.containsKey("description")) {
             String description = object.getJsonObject("description")

@@ -35,16 +35,18 @@ public class RedisConfig {
         config.setPort(redisPort);
         logger.log(Level.INFO, "Successfully set host " + redisHost + " and port " + redisPort);
 
-        // connext config to Jedis driver
+        // connect config to Jedis driver
         final JedisClientConfiguration jedisClient = JedisClientConfiguration
                 .builder()
                 .build();
         final JedisConnectionFactory jedisFac = new JedisConnectionFactory(config, jedisClient);
         jedisFac.afterPropertiesSet();
+        logger.log(Level.INFO, "jedisFac configured");
 
         // allow app to communicate with RedisTemplate
         RedisTemplate<String, Object> template = new RedisTemplate<String, Object>();
         template.setConnectionFactory(jedisFac);
+        logger.log(Level.INFO, "template configured");
 
         // convert strings to UTF-8
         template.setKeySerializer(new StringRedisSerializer());
@@ -55,6 +57,7 @@ public class RedisConfig {
         RedisSerializer<Object> serializer = new JdkSerializationRedisSerializer(getClass().getClassLoader());
 
         template.setValueSerializer(serializer);
+        logger.log(Level.INFO, "serializers configured");
 
         return template;
     }
