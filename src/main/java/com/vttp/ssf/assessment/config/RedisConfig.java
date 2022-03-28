@@ -3,6 +3,8 @@ package com.vttp.ssf.assessment.config;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,6 +27,13 @@ public class RedisConfig {
     @Value("${spring.redis.port}")
     private int redisPort;
 
+    private String apiKey;
+
+    @PostConstruct
+    private void init() {
+        apiKey = System.getenv("REDIS_API_KEY");
+    }
+
     @Bean
     @Scope("singleton")
     public RedisTemplate<String, Object> redisTemplate() {
@@ -33,6 +42,7 @@ public class RedisConfig {
 
         config.setHostName(redisHost);
         config.setPort(redisPort);
+        config.setPassword(apiKey);
         logger.log(Level.INFO, "Successfully set host " + redisHost + " and port " + redisPort);
 
         // connect config to Jedis driver
